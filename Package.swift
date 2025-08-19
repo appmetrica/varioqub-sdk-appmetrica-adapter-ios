@@ -1,0 +1,226 @@
+// swift-tools-version:5.7
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
+import PackageDescription
+
+let useLocalVarioqubPackage = false
+let useSpmExternalPackages = false
+let varioqubCurrentVersion = "1.0.0"
+let spmExternalScope = "spm-external"
+
+let swiftCompilerSettings: [SwiftSetting] = [
+    .define("VQ_MODULES"),
+]
+
+enum DependencyVersion {
+    case exact(Version)
+    case range(Range<PackageDescription.Version>)
+}
+
+enum VarioqubTarget: String, CaseIterable {
+    case adapter = "VarioqubAppMetricaAdapter"
+    case objc = "VarioqubAppMetricaAdapterObjC"
+}
+
+enum VarioqubProduct: String, CaseIterable {
+    case adapter = "VarioqubAppMetricaAdapter"
+    case objc = "VarioqubAppMetricaAdapterObjC"
+    
+    var targets: [VarioqubTarget] {
+        switch self {
+        case .adapter: return [.adapter]
+        case .objc: return [.adapter, .objc]
+        }
+    }
+}
+
+enum ExternalDependency: String, CaseIterable {
+    case protobuf = "swift-protobuf"
+    case swiftLog = "swift-log"
+    case varioqub = "varioqub"
+    case appMetrica = "appmetrica-sdk-ios"
+    
+    var version: DependencyVersion {
+        switch self {
+        case .swiftLog: return .range("1.5.2"..<"2.0.0")
+        case .protobuf: return .range("1.21.0"..<"2.0.0")
+        case .varioqub: return .exact("0.8.0")
+        case .appMetrica: return .range("5.2.0"..<"6.0.0")
+        }
+    }
+    
+    var regularPackageName: String {
+        switch self {
+        case .swiftLog: return "swift-log"
+        case .protobuf: return "swift-protobuf"
+        case .varioqub: return "varioqub"
+        case .appMetrica: return "appmetrica-sdk-ios"
+        }
+    }
+    
+    var localPackageName: String {
+        switch self {
+        case .swiftLog: return "\(spmExternalScope).swift-log"
+        case .protobuf: return "\(spmExternalScope).SwiftProtobuf"
+        case .varioqub: return "varioqub"
+        case .appMetrica: return "\(spmExternalScope).AppMetrica"
+        }
+    }
+    
+    var spmExternalPackageName: String {
+        switch self {
+        case .swiftLog: return "\(spmExternalScope).swift-log"
+        case .protobuf: return "\(spmExternalScope).SwiftProtobuf"
+        case .varioqub: return "\(spmExternalScope).varioqub"
+        case .appMetrica: return "\(spmExternalScope).appmetrica-sdk-ios"
+        }
+    }
+    
+    var regularPackageDependency: Package.Dependency {
+        switch self {
+        case .swiftLog: return .package(url: "https://github.com/apple/swift-log", version: version)
+        case .protobuf: return .package(url: "https://github.com/apple/swift-protobuf", version: version)
+        case .varioqub: return .package(name: "varioqub", path: "../varioqub") //TODO: use github
+        case .appMetrica: return .package(url: "https://github.com/appmetrica/appmetrica-sdk-ios", version: version)
+        }
+    }
+    
+    var spmExternalPackageDependency: Package.Dependency {
+        switch self {
+        case .swiftLog: return .package(id: "\(spmExternalScope).swift-log", version: version)
+        case .protobuf: return .package(id: "\(spmExternalScope).SwiftProtobuf", version: version)
+        case .varioqub: return .package(id: "\(spmExternalScope).Varioqub", version: version)
+        case .appMetrica: return .package(id: "\(spmExternalScope).AppMetrica", version: version)
+        }
+    }
+    
+    var localPackageDependency: Package.Dependency {
+        switch self {
+        case .swiftLog: return .package(id: "\(spmExternalScope).swift-log", version: version)
+        case .protobuf: return .package(id: "\(spmExternalScope).SwiftProtobuf", version: version)
+        case .varioqub: return .package(name: "varioqub", path: "../varioqub")
+        case .appMetrica: return .package(id: "\(spmExternalScope).AppMetrica", version: version)
+        }
+    }
+}
+
+enum ExternalTargetDependency: String, CaseIterable {
+    case swiftLog = "Logging"
+    case protobuf = "SwiftProtobuf"
+    case varioqub = "Varioqub"
+    case varioqubObjC = "VarioqubObjC"
+    case appMetrica = "AppMetricaCore"
+    
+    var package: ExternalDependency {
+        switch self {
+        case .swiftLog: return .swiftLog
+        case .protobuf: return .protobuf
+        case .varioqub, .varioqubObjC: return .varioqub
+        case .appMetrica: return .appMetrica
+        }
+    }
+    
+    var targetDependency: Target.Dependency {
+        .product(name: rawValue, package: package.packageName)
+    }
+}
+
+let targets: [Target] = [
+    .target(varioqubTarget: .adapter, externalDependencies: [.swiftLog, .protobuf, .varioqub, .appMetrica]),
+    .target(varioqubTarget: .objc, dependencies: [.adapter], externalDependencies: [.varioqubObjC]),
+]
+
+let package = Package(
+        name: "VarioqubAppMetricaAdapter",
+        platforms: [
+            .iOS(.v13),
+            .tvOS(.v13),
+        ],
+        products: VarioqubProduct.allCases.map(\.product),
+        dependencies: ExternalDependency.allCases.map(\.packageDependency),
+        targets: targets
+)
+
+extension VarioqubTarget {
+    var name: String { rawValue }
+    var testsName: String { rawValue + "Tests" }
+    var path: String { "Sources/\(rawValue)" }
+    var testsPath: String { "Tests/\(rawValue)Tests" }
+    var dependency: Target.Dependency { .target(name: rawValue) }
+}
+
+extension VarioqubProduct {
+    var product: Product {
+        .library(
+            name: rawValue,
+            targets: targets.map(\.name)
+        )
+    }
+}
+
+extension ExternalDependency {
+    
+    var packageName: String {
+        if useLocalVarioqubPackage {
+            return localPackageName
+        } else if useSpmExternalPackages {
+            return spmExternalPackageName
+        } else {
+            return regularPackageName
+        }
+    }
+    
+    var packageDependency: Package.Dependency {
+        if useLocalVarioqubPackage {
+            return localPackageDependency
+        } else if useSpmExternalPackages {
+            return spmExternalPackageDependency
+        } else {
+            return regularPackageDependency
+        }
+    }
+}
+
+extension Target {
+    
+    static func target(
+        varioqubTarget: VarioqubTarget,
+        resources: [Resource]? = nil,
+        dependencies: [VarioqubTarget] = [],
+        externalDependencies: [ExternalTargetDependency] = [],
+        includePrivacyManifest: Bool = true
+    ) -> Target {
+        var res: [Resource] = resources ?? []
+        if includePrivacyManifest {
+            res.append(.copy("Resources/PrivacyInfo.xcprivacy"))
+        }
+        return .target(
+            name: varioqubTarget.name,
+            dependencies: dependencies.map(\.dependency) + externalDependencies.map(\.targetDependency),
+            path: varioqubTarget.path,
+            resources: res,
+            swiftSettings: swiftCompilerSettings
+        )
+    }
+    
+}
+
+extension Package.Dependency {
+    static func package(id: String, version: DependencyVersion) -> Package.Dependency {
+        switch version {
+        case .exact(let v):
+            return .package(id: id, exact: v)
+        case .range(let r):
+            return .package(id: id, r)
+        }
+    }
+    
+    static func package(url: String, version: DependencyVersion) -> Package.Dependency {
+        switch version {
+        case .exact(let v):
+            return .package(url: url, exact: v)
+        case .range(let r):
+            return .package(url: url, r)
+        }
+    }
+}

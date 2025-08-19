@@ -1,0 +1,6 @@
+syntax = "proto2";
+
+message VarioqubMessage {
+  optional string encrypted_experiments = 1;
+  repeated int64 triggered_test_ids = 2;
+}
