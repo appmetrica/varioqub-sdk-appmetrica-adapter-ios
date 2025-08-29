@@ -65,8 +65,8 @@ enum ExternalDependency: String, CaseIterable {
         switch self {
         case .swiftLog: return "\(spmExternalScope).swift-log"
         case .protobuf: return "\(spmExternalScope).SwiftProtobuf"
-        case .varioqub: return "\(spmExternalScope).varioqub"
-        case .appMetrica: return "\(spmExternalScope).appmetrica-sdk-ios"
+        case .varioqub: return "\(spmExternalScope).Varioqub"
+        case .appMetrica: return "\(spmExternalScope).AppMetrica"
         }
     }
     
