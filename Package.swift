@@ -3,19 +3,13 @@
 
 import PackageDescription
 
-let useLocalVarioqubPackage = false
-let useSpmExternalPackages = false
+let usedSource: DependencySource = .regular
 let varioqubCurrentVersion = "1.0.0"
 let spmExternalScope = "spm-external"
 
 let swiftCompilerSettings: [SwiftSetting] = [
     .define("VQ_MODULES"),
 ]
-
-enum DependencyVersion {
-    case exact(Version)
-    case range(Range<PackageDescription.Version>)
-}
 
 enum VarioqubTarget: String, CaseIterable {
     case adapter = "VarioqubAppMetricaAdapter"
@@ -44,7 +38,7 @@ enum ExternalDependency: String, CaseIterable {
         switch self {
         case .swiftLog: return .range("1.5.2"..<"2.0.0")
         case .protobuf: return .range("1.21.0"..<"2.0.0")
-        case .varioqub: return .exact("0.8.0")
+        case .varioqub: return .exact(Version(varioqubCurrentVersion)!)
         case .appMetrica: return .range("5.2.0"..<"6.0.0")
         }
     }
@@ -53,7 +47,7 @@ enum ExternalDependency: String, CaseIterable {
         switch self {
         case .swiftLog: return "swift-log"
         case .protobuf: return "swift-protobuf"
-        case .varioqub: return "varioqub"
+        case .varioqub: return "varioqub-sdk-ios"
         case .appMetrica: return "appmetrica-sdk-ios"
         }
     }
@@ -80,7 +74,7 @@ enum ExternalDependency: String, CaseIterable {
         switch self {
         case .swiftLog: return .package(url: "https://github.com/apple/swift-log", version: version)
         case .protobuf: return .package(url: "https://github.com/apple/swift-protobuf", version: version)
-        case .varioqub: return .package(name: "varioqub", path: "../varioqub") //TODO: use github
+        case .varioqub: return .package(url: "https://github.com/appmetrica/varioqub-sdk-ios", version: version)
         case .appMetrica: return .package(url: "https://github.com/appmetrica/appmetrica-sdk-ios", version: version)
         }
     }
@@ -161,22 +155,24 @@ extension VarioqubProduct {
 extension ExternalDependency {
     
     var packageName: String {
-        if useLocalVarioqubPackage {
+        switch usedSource {
+        case .local:
             return localPackageName
-        } else if useSpmExternalPackages {
-            return spmExternalPackageName
-        } else {
+        case .regular:
             return regularPackageName
+        case .spmExternal:
+            return spmExternalPackageName
         }
     }
     
     var packageDependency: Package.Dependency {
-        if useLocalVarioqubPackage {
+        switch usedSource {
+        case .local:
             return localPackageDependency
-        } else if useSpmExternalPackages {
-            return spmExternalPackageDependency
-        } else {
+        case .regular:
             return regularPackageDependency
+        case .spmExternal:
+            return spmExternalPackageDependency
         }
     }
 }
@@ -223,4 +219,15 @@ extension Package.Dependency {
             return .package(url: url, r)
         }
     }
+}
+
+enum DependencyVersion {
+    case exact(Version)
+    case range(Range<PackageDescription.Version>)
+}
+
+enum DependencySource {
+    case local
+    case regular
+    case spmExternal
 }
