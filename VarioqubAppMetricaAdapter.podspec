@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name = "VarioqubAppMetricaAdapter"
-  s.version = '1.0.1'
+  s.version = '1.1.0'
   s.summary = "Varioqub AppMetrica Adapter"
 
   s.homepage = "https://varioqub.ru"
@@ -27,10 +27,10 @@ Pod::Spec.new do |s|
       "Sources/VarioqubAppMetricaAdapter/**/*.swift",
     ]
 
-    core.dependency 'Varioqub'
+    core.dependency 'Varioqub', "= #{s.version}" 
     core.dependency 'SwiftProtobuf'
-    core.dependency 'AppMetricaCore'
-    core.dependency 'AppMetricaCoreExtension'
+    core.dependency 'AppMetricaCore', '~> 5.2'
+    core.dependency 'AppMetricaCoreExtension', '~> 5.2'
   end
 
   s.subspec "ObjC" do |objc|
