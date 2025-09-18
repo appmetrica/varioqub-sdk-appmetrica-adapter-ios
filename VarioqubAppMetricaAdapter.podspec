@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
       "Sources/VarioqubAppMetricaAdapter/**/*.swift",
     ]
 
-    core.dependency 'Varioqub', "= #{s.version}" 
+    core.dependency 'Varioqub', "= #{s.version}"
     core.dependency 'SwiftProtobuf'
     core.dependency 'AppMetricaCore', '~> 5.2'
     core.dependency 'AppMetricaCoreExtension', '~> 5.2'
