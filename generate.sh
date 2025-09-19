@@ -2,5 +2,4 @@
 
 set -e 
 
-mint bootstrap
-protoc --plugin="$(mint which apple/swift-protobuf)" ./Sources/VarioqubAppMetricaAdapter/Protobuf/*.proto  --swift_out  .
+protoc ./Sources/VarioqubAppMetricaAdapter/Protobuf/*.proto  --swift_out  .
