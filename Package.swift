@@ -39,7 +39,7 @@ enum ExternalDependency: String, CaseIterable {
         case .swiftLog: return .range("1.5.2"..<"2.0.0")
         case .protobuf: return .range("1.21.0"..<"2.0.0")
         case .varioqub: return .exact(Version(varioqubCurrentVersion)!)
-        case .appMetrica: return .range("5.2.0"..<"6.0.0")
+        case .appMetrica: return .range("6.0.0"..<"7.0.0")
         }
     }
     

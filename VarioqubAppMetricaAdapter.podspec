@@ -29,8 +29,8 @@ Pod::Spec.new do |s|
 
     core.dependency 'Varioqub', "= #{s.version}"
     core.dependency 'SwiftProtobuf', '~> 1.31'
-    core.dependency 'AppMetricaCore', '~> 5.2'
-    core.dependency 'AppMetricaCoreExtension', '~> 5.2'
+    core.dependency 'AppMetricaCore', '~> 6.0'
+    core.dependency 'AppMetricaCoreExtension', '~> 6.0'
   end
 
   s.subspec "ObjC" do |objc|
