@@ -4,7 +4,7 @@
 import PackageDescription
 
 let usedSource: DependencySource = .regular
-let varioqubCurrentVersion = "1.2.0"
+let varioqubCurrentVersion = "1.3.0"
 let spmExternalScope = "spm-external"
 
 let swiftCompilerSettings: [SwiftSetting] = [
