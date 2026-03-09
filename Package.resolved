@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/appmetrica/varioqub-sdk-ios",
       "state" : {
-        "revision" : "57ea131811afdcb970c5cd6ddd2b9ae21e14c2fc",
-        "version" : "1.1.2"
+        "revision" : "d7a5dd1cea9be37ba0c19a647545068f3eadb403",
+        "version" : "1.2.1"
       }
     }
   ],
