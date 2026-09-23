@@ -164,8 +164,8 @@ let objc = Module(
 let package = Package(
     name: "VarioqubAppMetricaAdapter",
     platforms: [
-        .iOS(.v13),
-        .tvOS(.v13),
+        .iOS(.v15),
+        .tvOS(.v15),
     ],
     products: [
         .library(name: "VarioqubAppMetricaAdapter", targets: [Module.adapter]),
